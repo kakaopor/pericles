@@ -1,7 +1,7 @@
 package hu.pericles.kakaopor;
 
 public class Trap extends Entity {
-    double damage;
+    private double damage;
 
     protected Trap(float startPositionX, float startPositionY, double damage) {
         super(startPositionX, startPositionY);

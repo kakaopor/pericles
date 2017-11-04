@@ -1,5 +1,7 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.Gdx;
+
 public abstract class Moving extends Entity {
     private int speed;
     private boolean isRotated;
