@@ -18,4 +18,13 @@ public class Base extends Entity {
         this.level++;
         //this.sprite = new Sprite("baseLevel" + getLevel() + "Texture");
     }
+
+    protected double getHealthPoint() {
+        return healthPoint;
+    }
+
+    public void setHealthPoint(double healthPoint) {
+        this.healthPoint = healthPoint;
+    }
+
 }
