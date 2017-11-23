@@ -8,7 +8,7 @@ public abstract class Moving extends Entity {
     private float currentDestinationX;
     private float currentDestionationY;
 
-    protected Moving(float startPositionX, float startPositionY, int speed) {
+    Moving(float startPositionX, float startPositionY, int speed) {
         super(startPositionX, startPositionY);
         this.speed = speed;
         this.isRotated = false;
@@ -22,7 +22,7 @@ public abstract class Moving extends Entity {
         this.speed = speed;
     }
 
-    protected void move(float destinationX, float destinationY) {
+    void move(float destinationX, float destinationY) {
         float deltaX = destinationX - getPositionX();
         float deltaY = destinationY - getPositionY();
         float absolute = Math.abs(deltaX) + Math.abs(deltaY);

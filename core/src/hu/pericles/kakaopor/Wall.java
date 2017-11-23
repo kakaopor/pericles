@@ -1,8 +1,8 @@
 package hu.pericles.kakaopor;
 
-public abstract class Wall extends Entity {
-    double healthPoint;
-    double armor;
+class Wall extends Entity {
+    private double healthPoint;
+    private double armor;
 
     public Wall(float startPositionX, float startPositionY, double healthPoint, double armor) {
         super(startPositionX, startPositionY);

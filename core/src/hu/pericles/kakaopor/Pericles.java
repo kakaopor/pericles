@@ -15,15 +15,21 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
 
     /*TEXTURES*/
     private Texture[] baseLevelTexture = new Texture[6];
-    private Texture enemyTexture, trapTexture;
-    private Texture turretTowerTexture, turretBaseTexture;
+    private Texture[] turretTowerLevelTexture = new Texture[6];
+    private Texture[] turretBaseLevelTexture = new Texture[6];
+    private Texture[] trapLevelTexture = new Texture[6];
+    private Texture enemyTexture;
     /*FONT*/
-    BitmapFont font;
+    private BitmapFont font;
 
     /*GAME CONSTANTS*/
     private static final int NUMBER_OF_ENEMY = 10;
     private static final int NUMBER_OF_TRAP = 15;
     private static final int NUMBER_OF_TOWER = 15;
+    private static final int PRICE_TRAP = 1250;
+    private static final int PRICE_TOWER = 2500;
+    private static final int PRICE_UPGRADE_BASE = 10000;
+    private static final int SIZE_TILE = 64;
 
     private Enemy[] enemy = new Enemy[NUMBER_OF_ENEMY];
     private Trap[] trap = new Trap[NUMBER_OF_TRAP];
@@ -35,13 +41,11 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
     private int actualTrap = 0;
     private int actualTower = 0;
     private boolean isTrap = true;
+    private static String not_enough_gold_warning = "";
 
-    private int gold = 1000;
-    private int experiencePoint = 0;
-    protected int increaserGold = 5;
-
-    protected boolean baseRotate = true;
-    protected int baseRotateCounter = 0;
+    private static int gold = 0;
+    private static int experiencePoint = 0;
+    private static int increaserGold = 5;
 
     private float[] destinationX = new float[NUMBER_OF_ENEMY];
     private float[] destinationY = new float[NUMBER_OF_ENEMY];
@@ -51,31 +55,42 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
         batch = new SpriteBatch();
 
         /*TEXTURES*/
+
         /*Enemy textures*/
         enemyTexture = new Texture(Gdx.files.internal("enemy/enemy.png") );
+
         /*Base textures by level*/
         for (int i = 0; i < 6; i++) {
             baseLevelTexture[i] = new Texture(Gdx.files.internal("base/base_level" + i + ".png") );
         }
+
         /*Trap textures*/
-        trapTexture = new Texture(Gdx.files.internal("trap/trap.png") );
+        for (int i = 0; i < 6; i++) {
+            trapLevelTexture[i] = new Texture(Gdx.files.internal("trap/trap_level" + i + ".png") );
+        }
+
         /*TurretTower textures*/
-        turretTowerTexture = new Texture(Gdx.files.internal("turret/turret_tower.png") );
+        for (int i = 0; i < 6; i++) {
+            turretTowerLevelTexture[i] = new Texture(Gdx.files.internal("turret/turret_tower_level" + i + ".png") );
+        }
+
         /*TurretBase textures*/
-        turretBaseTexture = new Texture(Gdx.files.internal("turret/turret.png") );
+        for (int i = 0; i < 6; i++) {
+            turretBaseLevelTexture[i] = new Texture(Gdx.files.internal("turret/turret_base_level" + i  + ".png") );
+        }
 
         /*Font*/
         font = new BitmapFont(Gdx.files.internal("font/pericles_roboto.fnt"), false);
 
         for (int i = 0; i < NUMBER_OF_TRAP; i++) {
-            trap[i] = new Trap(0, 0, 100);
-            trap[i].sprite = new Sprite(trapTexture);
+            trap[i] = new Trap(0, Gdx.graphics.getHeight() - 320, 100);
+            trap[i].sprite = new Sprite(trapLevelTexture[0]);
         }
 
         int startX = 100;
         int startY = 100;
         for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-            enemy[i] = new Enemy(startX, startY, 5, 0 ,0);
+            enemy[i] = new Enemy(startX, startY, 5, 9 ,10);
             enemy[i].sprite = new Sprite(enemyTexture);
             enemy[i].sprite.setPosition(enemy[i].getPositionX(), enemy[i].getPositionY() );
             startX += 50;
@@ -90,16 +105,16 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
         for (int i = 0; i < NUMBER_OF_TOWER; i++) {
             turretTower[i] = new TurretTower(64f, 0f, 25f);
             turretBase[i] = new TurretBase(64f, 0f);
-            turretTower[i].sprite = new Sprite(turretTowerTexture);
-            turretBase[i].sprite = new Sprite(turretBaseTexture);
+            turretTower[i].sprite = new Sprite(turretTowerLevelTexture[0]);
+            turretBase[i].sprite = new Sprite(turretBaseLevelTexture[0]);
             turretTower[i].sprite.setPosition(turretTower[i].getPositionX(), turretTower[i].getPositionY() );
             turretBase[i].sprite.setPosition(turretBase[i].getPositionX(), turretBase[i].getPositionY() );
             turretTower[i].sprite.rotate(-90);
         }
 
         for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-            destinationX[i] = (float)Math.random() * 730;
-            destinationY[i] = (float)Math.random() * 530;
+            destinationX[i] = Gdx.graphics.getWidth() / 2 - base.sprite.getWidth() / 2;
+            destinationY[i] = Gdx.graphics.getHeight() / 2 - base.sprite.getWidth() / 2;
         }
 
         Gdx.input.setInputProcessor(this);
@@ -112,33 +127,52 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
 
         batch.begin();
 
-        font.draw(batch, "Gold: " + gold, Gdx.graphics.getWidth() - 250, 32);
-        font.draw(batch, "XP: " + experiencePoint, Gdx.graphics.getWidth() - 350, 32);
-        font.draw(batch, "HP: " + (int)base.getHealthPoint(), Gdx.graphics.getWidth() - 475, 32);
-        font.draw(batch, "Base level: " + base.getLevel(), Gdx.graphics.getWidth() - 650, 32 );
-
+        font.setColor(1,1,1,1);
+        font.draw(batch, "Gold: " + gold, 0, Gdx.graphics.getHeight() - 64 );
+        font.draw(batch, "XP: " + experiencePoint, 0, Gdx.graphics.getHeight() - 128);
+        font.draw(batch, "HP: " + base.getHealthPoint(), 0, Gdx.graphics.getHeight() - 192);
+        font.draw(batch, "Base level: " + base.getLevel(), 0, Gdx.graphics.getHeight() - 256 );
+        font.draw(batch, not_enough_gold_warning, 0, Gdx.graphics.getHeight() - 384);
         //increase gold
         gold += increaserGold;
 
         for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-            enemy[i].sprite.draw(batch);
+            if (enemy[i].isAlive() ) {
+                enemy[i].sprite.draw(batch);
+            }
         }
 
         for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-            if (!(enemy[i].getPositionX() <= destinationX[i]+5 &&
-                    enemy[i].getPositionX() >= destinationX[i]-5  &&
-                    enemy[i].getPositionY() <= destinationY[i]+5 &&
-                    enemy[i].getPositionY() >= destinationY[i]-5)) {
-                enemy[i].move(destinationX[i], destinationY[i]);
+            if (!(enemy[i].getPositionX() <= destinationX[i]+8 &&
+                enemy[i].getPositionX() >= destinationX[i]-8  &&
+                enemy[i].getPositionY() <= destinationY[i]+8 &&
+                enemy[i].getPositionY() >= destinationY[i]-8)) {
+                    enemy[i].move(destinationX[i], destinationY[i]);
+            } else if (enemy[i].getPositionX() <= destinationX[i]+8 &&
+                    enemy[i].getPositionX() >= destinationX[i]-8 &&
+                    enemy[i].getPositionY() <= destinationY[i]+8 &&
+                    enemy[i].getPositionY() >= destinationY[i]-8 &&
+                    enemy[i].isAlive() ) {
+                Base.setHealthPoint( (Base.getHealthPoint() - enemy[i].getHealth() )  );
+                enemy[i].kill();
+                if (Base.getHealthPoint() <= 0) {
+                    Base.kill();
+                }
             } else {
-                destinationX[i] = (float)Math.random() * 730;
-                destinationY[i] = (float)Math.random() * 530;
+                destinationX[i] = -10;
+                destinationY[i] = -10;
             }
         }
 
 
-        baseRotator();
-        base.sprite.draw(batch);
+        base.rotator();
+
+        if (Base.isAlive() ) {
+            base.sprite.draw(batch);
+        } else {
+            font.setColor(1, 0, 0 ,1);
+            font.draw(batch, "YOUR BASE HAS BEEN DESTROYED", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        }
 
         for (int i = 0; i < NUMBER_OF_TRAP; i++) {
             trap[i].sprite.draw(batch);
@@ -156,18 +190,30 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
     @Override
     public void dispose () {
         batch.dispose();
+
         /*Dispose Enemy texture*/
         enemyTexture.dispose();
+
         /*Dispose Base textures by level*/
         for (int i = 0; i < 6; i++) {
             baseLevelTexture[i].dispose();
         }
-        /*Dispose Trap texture*/
-        trapTexture.dispose();
-        /*Dispose TurretTower texture*/
-        turretTowerTexture.dispose();
-        /*Dispose TurretBase texture*/
-        turretBaseTexture.dispose();
+
+        /*Dispose Trap textures by level*/
+        for (int i = 0; i < 6; i++) {
+            trapLevelTexture[i].dispose();
+        }
+
+        /*Dispose TurretTower textures by level*/
+        for (int i = 0; i < 6; i++) {
+            turretTowerLevelTexture[i].dispose();
+        }
+
+        /*Dispose TurretBase textures by level*/
+        for (int i = 0; i < 6; i++) {
+            turretBaseLevelTexture[i].dispose();
+        }
+
     }
 
     @Override
@@ -178,15 +224,21 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
             } else {
                 isTrap = true;
             }
-        } else if (keycode == Input.Keys.B && gold >= (10000 * base.getLevel() + 10000) && base.getLevel() < 5) {
-            gold -= (10000 * base.getLevel() + 10000);
-            base.upLevel();
-            base.sprite = new Sprite(baseLevelTexture[base.getLevel()] );
-            base.setPositionX(Gdx.graphics.getWidth() / 2 - base.sprite.getWidth() / 2);
-            base.setPositionY(Gdx.graphics.getHeight() / 2 - base.sprite.getWidth() / 2);
-            base.sprite.setPosition(base.getPositionX(), base.getPositionY() );
-            increaserGold *= base.getLevel();
-            base.setHealthPoint(base.getHealthPoint() * base.getLevel() );
+        } else if (keycode == Input.Keys.B) {
+            if (gold >= (PRICE_UPGRADE_BASE * PRICE_UPGRADE_BASE * Base.getLevel() ) && Base.getLevel() < 5) {
+                gold -= PRICE_UPGRADE_BASE * PRICE_UPGRADE_BASE * Base.getLevel();
+                Base.upLevel();
+                base.sprite = new Sprite(baseLevelTexture[Base.getLevel()]);
+                base.setPositionX(Gdx.graphics.getWidth() / 2 - base.sprite.getWidth() / 2);
+                base.setPositionY(Gdx.graphics.getHeight() / 2 - base.sprite.getWidth() / 2);
+                base.sprite.setPosition(base.getPositionX(), base.getPositionY());
+                increaserGold *= Base.getLevel();
+                Base.setHealthPoint(Base.getHealthPoint() * Base.getLevel());
+                not_enough_gold_warning = "";
+            } else {
+                font.setColor(1, 0, 0, 1);
+                not_enough_gold_warning = "You have not enough gold (" + (PRICE_UPGRADE_BASE * PRICE_UPGRADE_BASE * base.getLevel() ) + ")";
+            }
         }
         return false;
     }
@@ -208,21 +260,25 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        //Debug
-        //System.out.println(actualTrap);
-        if (isTrap && (gold >= (2500 * base.getLevel() + 2500) ) ) {
-            if (actualTrap < NUMBER_OF_TRAP - 1) {
-                actualTrap++;
-                gold -= (2500 * base.getLevel() + 2500);
+        if (isTrap) {
+            if (gold >= (PRICE_TRAP * base.getLevel() + PRICE_TRAP) ) {
+                if (actualTrap < NUMBER_OF_TRAP - 1) {
+                    actualTrap++;
+                    gold -= (PRICE_TRAP * base.getLevel() + PRICE_TRAP);
+                }
+                not_enough_gold_warning = "";
             } else {
-                actualTrap = 0;
+                not_enough_gold_warning = "You have not enough gold (" + (PRICE_TRAP * base.getLevel() + PRICE_TRAP) + ")";
             }
-        } else if (gold >= (5000 * base.getLevel() + 5000) ) {
-            if (actualTower < NUMBER_OF_TOWER - 1) {
-                actualTower++;
-                gold -= (5000 * base.getLevel() + 5000);
+        } else {
+            if (gold >= (PRICE_TOWER * Base.getLevel() + PRICE_TOWER ) ) {
+                if (actualTower < NUMBER_OF_TOWER - 1) {
+                    actualTower++;
+                    gold -= (PRICE_TOWER * Base.getLevel() + PRICE_TOWER);
+                }
+                not_enough_gold_warning = "";
             } else {
-                actualTrap = 0;
+                not_enough_gold_warning = "You have not enough gold (" + (PRICE_TOWER * base.getLevel() + PRICE_TOWER) + ")";
             }
         }
         return false;
@@ -230,11 +286,15 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
 
     @Override
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        if (isTrap) {
-            trap[actualTrap].sprite.setPosition(screenX, Gdx.graphics.getHeight() - screenY);
-        } else {
-            turretBase[actualTower].sprite.setPosition(screenX, Gdx.graphics.getHeight() - screenY);
-            turretTower[actualTower].sprite.setPosition(screenX, Gdx.graphics.getHeight() - screenY);
+        int x_parsed = (int)Math.floor(screenX / SIZE_TILE) * SIZE_TILE;
+        int y_parsed = (int)Math.floor(screenY / SIZE_TILE) * SIZE_TILE;
+        if (Math.floor(screenX / SIZE_TILE) != Math.floor(screenY / SIZE_TILE) ) {
+            if (isTrap) {
+                trap[actualTrap].sprite.setPosition(x_parsed, Gdx.graphics.getHeight() - y_parsed);
+            } else {
+                turretBase[actualTower].sprite.setPosition(x_parsed, Gdx.graphics.getHeight() - y_parsed);
+                turretTower[actualTower].sprite.setPosition(x_parsed, Gdx.graphics.getHeight() - y_parsed);
+            }
         }
         return false;
     }
@@ -249,24 +309,6 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
         return false;
     }
 
-    /*Rotates the base 180 degress left, then right and repeat.*/
-    public void baseRotator() {
-        if (baseRotateCounter >= 180) {
-            if (baseRotate) {
-                baseRotate = false;
-            } else {
-                baseRotate = true;
-            }
-            baseRotateCounter = 0;
-        }
 
-        if (baseRotate) {
-            base.rotate(1);
-        } else {
-            base.rotate(-1);
-        }
-        baseRotateCounter++;
-
-    }
 
 }
