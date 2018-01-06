@@ -168,7 +168,6 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
             }
         }
 
-
         base.rotator();
 
         if (Base.isAlive() ) {
