@@ -12,11 +12,8 @@ public abstract class Entity {
         this.positionY = positionY;
     }
 
-    void setPositionX(float positionX) {
+    void setPosition(float positionX, float positionY) {
         this.positionX = positionX;
-    }
-
-    void setPositionY(float positionY) {
         this.positionY = positionY;
     }
 

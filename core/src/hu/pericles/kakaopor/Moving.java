@@ -29,8 +29,10 @@ public abstract class Moving extends Entity {
 
         for (int i = 0; i < speed; i++) {
             sprite.translate(deltaX / absolute, deltaY /absolute );
-            setPositionX(getPositionX() + deltaX / absolute);
-            setPositionY(getPositionY() + deltaY / absolute);
+            setPosition(
+                    getPositionX() + deltaX / absolute,
+                    getPositionY() + deltaY / absolute
+            );
         }
 
         /*If this is a new destination, then this Moving Entity is not rotated to the new destination*/

@@ -26,9 +26,11 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
     private static final int NUMBER_OF_ENEMY = 10;
     private static final int NUMBER_OF_TRAP = 15;
     private static final int NUMBER_OF_TOWER = 15;
-    private static final int PRICE_TRAP = 1250;
-    private static final int PRICE_TOWER = 2500;
+    private static final int PRICE_TRAP = 500;
+    private static final int PRICE_TOWER = 1750;
     private static final int PRICE_UPGRADE_BASE = 10000;
+    private static final int PRICE_UPGRADE_TRAP = 500;
+    private static final int PRICE_UPGRADE_TOWER = 1000;
     private static final int SIZE_TILE = 64;
 
     private Enemy[] enemy = new Enemy[NUMBER_OF_ENEMY];
@@ -43,7 +45,7 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
     private boolean isTrap = true;
     private static String not_enough_gold_warning = "";
 
-    private static int gold = 0;
+    private static int gold = 100000;
     private static int experiencePoint = 0;
     private static int increaserGold = 5;
 
@@ -90,7 +92,7 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
         int startX = 100;
         int startY = 100;
         for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-            enemy[i] = new Enemy(startX, startY, 5, 9 ,10);
+            enemy[i] = new Enemy(startX, startY, 5, 5 ,10);
             enemy[i].sprite = new Sprite(enemyTexture);
             enemy[i].sprite.setPosition(enemy[i].getPositionX(), enemy[i].getPositionY() );
             startX += 50;
@@ -98,8 +100,10 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
 
         base = new Base(0, 0, 100);
         base.sprite = new Sprite(baseLevelTexture[0]);
-        base.setPositionX(Gdx.graphics.getWidth() / 2 - base.sprite.getWidth() / 2);
-        base.setPositionY(Gdx.graphics.getHeight() / 2 - base.sprite.getWidth() / 2);
+        base.setPosition(
+                Gdx.graphics.getWidth() / 2 - base.sprite.getWidth() / 2,
+                Gdx.graphics.getHeight() / 2 - base.sprite.getWidth() / 2
+        );
         base.sprite.setPosition(base.getPositionX(), base.getPositionY() );
 
         for (int i = 0; i < NUMBER_OF_TOWER; i++) {
@@ -224,20 +228,48 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
             } else {
                 isTrap = true;
             }
-        } else if (keycode == Input.Keys.B) {
-            if (gold >= (PRICE_UPGRADE_BASE * PRICE_UPGRADE_BASE * Base.getLevel() ) && Base.getLevel() < 5) {
-                gold -= PRICE_UPGRADE_BASE * PRICE_UPGRADE_BASE * Base.getLevel();
+        } else if (keycode == Input.Keys.Q && Base.getLevel() < 5) {
+            if (gold >= PRICE_UPGRADE_BASE * Base.getLevel() ) {
+                gold -= PRICE_UPGRADE_BASE * Base.getLevel();
                 Base.upLevel();
                 base.sprite = new Sprite(baseLevelTexture[Base.getLevel()]);
-                base.setPositionX(Gdx.graphics.getWidth() / 2 - base.sprite.getWidth() / 2);
-                base.setPositionY(Gdx.graphics.getHeight() / 2 - base.sprite.getWidth() / 2);
+                base.setPosition(
+                        Gdx.graphics.getWidth() / 2 - base.sprite.getWidth() / 2,
+                        Gdx.graphics.getHeight() / 2 - base.sprite.getWidth() / 2
+                );
                 base.sprite.setPosition(base.getPositionX(), base.getPositionY());
-                increaserGold *= Base.getLevel();
+                increaserGold += base.getLevel();
                 Base.setHealthPoint(Base.getHealthPoint() * Base.getLevel());
                 not_enough_gold_warning = "";
             } else {
                 font.setColor(1, 0, 0, 1);
-                not_enough_gold_warning = "You have not enough gold (" + (PRICE_UPGRADE_BASE * PRICE_UPGRADE_BASE * base.getLevel() ) + ")";
+                not_enough_gold_warning = "You have not enough gold (" + (PRICE_UPGRADE_BASE * base.getLevel() ) + ")";
+            }
+        } else if (keycode == Input.Keys.W && TurretBase.getLevel() < 5) {
+            if (gold >= PRICE_UPGRADE_TOWER * actualTower * TurretBase.getLevel() ) {
+                gold -= PRICE_UPGRADE_TOWER * TurretBase.getLevel();
+                TurretBase.upLevel();
+                for (int i = 0; i < NUMBER_OF_TOWER; i++) {
+                            turretTower[i].sprite = new Sprite(turretTowerLevelTexture[TurretBase.getLevel()]);
+                            turretBase[i].sprite = new Sprite(turretBaseLevelTexture[TurretBase.getLevel()]);
+                            turretTower[i].sprite.setPosition(turretTower[i].getPositionX(), turretTower[i].getPositionY() );
+                            turretBase[i].sprite.setPosition(turretBase[i].getPositionX(), turretBase[i].getPositionY() );
+                            turretTower[i].sprite.rotate(-90);
+                        }
+            } else {
+                font.setColor(1, 0, 0, 1);
+                not_enough_gold_warning = "You have not enough gold";
+            }
+        } else if (keycode == Input.Keys.R && Trap.getLevel() < 5) {
+            if (gold >= PRICE_UPGRADE_TRAP * actualTrap * Trap.getLevel() ) {
+                gold -= PRICE_UPGRADE_TRAP * actualTrap * Trap.getLevel();
+                Trap.upLevel();
+                for (int i = 0; i < NUMBER_OF_TRAP; i++) {
+                    trap[i].sprite = new Sprite(trapLevelTexture[Trap.getLevel()]);
+                    trap[i].sprite.setPosition(trap[i].getPositionX(), trap[i].getPositionY() );
+                }
+            } else {
+                not_enough_gold_warning = "You have not enough gold";
             }
         }
         return false;
@@ -262,21 +294,21 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         if (isTrap) {
             if (gold >= (PRICE_TRAP * base.getLevel() + PRICE_TRAP) ) {
+                not_enough_gold_warning = "";
                 if (actualTrap < NUMBER_OF_TRAP - 1) {
                     actualTrap++;
                     gold -= (PRICE_TRAP * base.getLevel() + PRICE_TRAP);
                 }
-                not_enough_gold_warning = "";
             } else {
                 not_enough_gold_warning = "You have not enough gold (" + (PRICE_TRAP * base.getLevel() + PRICE_TRAP) + ")";
             }
         } else {
             if (gold >= (PRICE_TOWER * Base.getLevel() + PRICE_TOWER ) ) {
+                not_enough_gold_warning = "";
                 if (actualTower < NUMBER_OF_TOWER - 1) {
                     actualTower++;
                     gold -= (PRICE_TOWER * Base.getLevel() + PRICE_TOWER);
                 }
-                not_enough_gold_warning = "";
             } else {
                 not_enough_gold_warning = "You have not enough gold (" + (PRICE_TOWER * base.getLevel() + PRICE_TOWER) + ")";
             }
@@ -289,9 +321,12 @@ public class Pericles extends ApplicationAdapter implements InputProcessor {
         int x_parsed = (int)Math.floor(screenX / SIZE_TILE) * SIZE_TILE;
         int y_parsed = (int)Math.floor(screenY / SIZE_TILE) * SIZE_TILE;
         if (Math.floor(screenX / SIZE_TILE) != Math.floor(screenY / SIZE_TILE) ) {
-            if (isTrap) {
+            if (isTrap && actualTrap < NUMBER_OF_TRAP - 1) {
+                trap[actualTrap].setPosition(x_parsed, Gdx.graphics.getHeight() - y_parsed);
                 trap[actualTrap].sprite.setPosition(x_parsed, Gdx.graphics.getHeight() - y_parsed);
-            } else {
+            } else if (actualTower < NUMBER_OF_TOWER - 1) {
+                turretBase[actualTower].setPosition(x_parsed, Gdx.graphics.getHeight() -  y_parsed);
+                turretTower[actualTower].setPosition(x_parsed, Gdx.graphics.getHeight() - y_parsed);
                 turretBase[actualTower].sprite.setPosition(x_parsed, Gdx.graphics.getHeight() - y_parsed);
                 turretTower[actualTower].sprite.setPosition(x_parsed, Gdx.graphics.getHeight() - y_parsed);
             }

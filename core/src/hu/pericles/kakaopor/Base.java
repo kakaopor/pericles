@@ -24,7 +24,6 @@ class Base extends Entity {
 
     static void upLevel() {
         level++;
-        //sprite = new Sprite("baseLevel" + getLevel() + "Texture");
     }
 
     static double getHealthPoint() {
