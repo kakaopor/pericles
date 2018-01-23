@@ -4,17 +4,17 @@ public class Trap extends Entity {
     private double damage;
     private static int level;
 
-    Trap(float startPositionX, float startPositionY, double damage) {
+    public Trap(float startPositionX, float startPositionY, double damage) {
         super(startPositionX, startPositionY);
         this.damage = damage;
         this.level = 0;
     }
 
-    static int getLevel() {
+    public static int getLevel() {
         return level;
     }
 
-    static void upLevel() {
+    public static void upLevel() {
         level++;
     }
 

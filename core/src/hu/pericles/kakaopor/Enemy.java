@@ -6,7 +6,7 @@ public class Enemy extends Moving {
     private static int enemyID = 0;
     private boolean alive;
 
-    Enemy(float startPositionX, float startPositionY, int speed, double healthPoint, double armor) {
+    public Enemy(float startPositionX, float startPositionY, int speed, double healthPoint, double armor) {
         super(startPositionX, startPositionY, speed);
         this.healthPoint = healthPoint;
         this.armor = armor;
@@ -18,15 +18,15 @@ public class Enemy extends Moving {
         healthPoint += healthChange;
     }
 
-    double getHealth() {
+    public double getHealth() {
         return healthPoint;
     }
 
-    boolean isAlive() {
+    public boolean isAlive() {
         return alive;
     }
 
-    void kill() {
+    public void kill() {
         alive = false;
     }
 

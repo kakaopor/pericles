@@ -1,7 +1,5 @@
 package hu.pericles.kakaopor;
 
-import com.badlogic.gdx.Gdx;
-
 public abstract class Moving extends Entity {
     private int speed;
     private boolean isRotated;
@@ -22,7 +20,7 @@ public abstract class Moving extends Entity {
         this.speed = speed;
     }
 
-    void move(float destinationX, float destinationY) {
+    public void move(float destinationX, float destinationY) {
         float deltaX = destinationX - getPositionX();
         float deltaY = destinationY - getPositionY();
         float absolute = Math.abs(deltaX) + Math.abs(deltaY);

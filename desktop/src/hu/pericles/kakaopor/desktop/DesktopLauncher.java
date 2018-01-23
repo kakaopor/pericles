@@ -10,7 +10,7 @@ public class DesktopLauncher {
 		config.width = 1024;
 		config.height = 768;
 		config.fullscreen = false;
-		config.title = "/iklész";
+		config.title = "/icles";
 		new LwjglApplication(new Pericles(), config);
 	}
 }

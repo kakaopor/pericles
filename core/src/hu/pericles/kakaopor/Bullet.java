@@ -1,6 +1,6 @@
 package hu.pericles.kakaopor;
 
-public class Bullet extends Moving {
+class Bullet extends Moving {
     private double damage;
 
     public Bullet(float startPositionX, float startPositionY, int speed, double damage) {

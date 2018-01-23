@@ -1,18 +1,18 @@
 package hu.pericles.kakaopor;
 
-class TurretBase extends Entity {
+public class TurretBase extends Entity {
     private static int level;
 
-    TurretBase(float positionX, float positionY) {
+    public TurretBase(float positionX, float positionY) {
         super(positionX, positionY);
         level = 0;
     }
 
-    static int getLevel() {
+    public static int getLevel() {
         return level;
     }
 
-    static void upLevel() {
+    public static void upLevel() {
         level++;
     }
 }

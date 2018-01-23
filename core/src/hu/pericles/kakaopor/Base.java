@@ -1,6 +1,6 @@
 package hu.pericles.kakaopor;
 
-class Base extends Entity {
+public class Base extends Entity {
 
     private static double healthPoint;
     private static int level;
@@ -9,7 +9,7 @@ class Base extends Entity {
     private static boolean rotate;
     private static int rotateCounter;
 
-    Base(float startPositionX, float startPositionY, double healthPoint) {
+    public Base(float startPositionX, float startPositionY, double healthPoint) {
         super(startPositionX, startPositionY);
         Base.healthPoint = healthPoint;
         Base.level = 0;
@@ -18,38 +18,34 @@ class Base extends Entity {
         Base.rotateCounter = 0;
     }
 
-    static int getLevel() {
+    public static int getLevel() {
         return level;
     }
 
-    static void upLevel() {
+    public static void upLevel() {
         level++;
     }
 
-    static double getHealthPoint() {
+    public static double getHealthPoint() {
         return healthPoint;
     }
 
-    static void setHealthPoint(double healthPoint) {
+    public static void setHealthPoint(double healthPoint) {
         Base.healthPoint = healthPoint;
     }
 
-    static boolean isAlive() {
+    public static boolean isAlive() {
         return alive;
     }
 
-    static void kill() {
+    public static void kill() {
         Base.alive = false;
     }
 
     /*Rotates the base 180 degress left, then right and repeat.*/
-    void rotator() {
+    public void rotator() {
         if (rotateCounter >= 180) {
-            if (rotate) {
-                rotate = false;
-            } else {
-                rotate = true;
-            }
+            rotate = !rotate;
             rotateCounter = 0;
         }
 
