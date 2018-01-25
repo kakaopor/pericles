@@ -1,6 +1,10 @@
 package hu.pericles.kakaopor;
 
+import static hu.pericles.kakaopor.states.PlayState.MAX_LEVEL;
+
 public class Base extends Entity {
+
+    private static final int[] PRICE_UPGRADE = {10000, 25000, 50000, 100000, 250000};
 
     private static double healthPoint;
     private static int level;
@@ -23,7 +27,9 @@ public class Base extends Entity {
     }
 
     public static void upLevel() {
-        level++;
+        if (level < MAX_LEVEL) {
+            level++;
+        }
     }
 
     public static double getHealthPoint() {
@@ -32,6 +38,13 @@ public class Base extends Entity {
 
     public static void setHealthPoint(double healthPoint) {
         Base.healthPoint = healthPoint;
+    }
+
+    public static int getPriceUpgrade(int level) {
+        if (level < MAX_LEVEL - 2) {
+            return PRICE_UPGRADE[level + 1];
+        }
+        return 0;
     }
 
     public static boolean isAlive() {

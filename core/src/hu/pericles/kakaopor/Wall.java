@@ -1,30 +1,48 @@
 package hu.pericles.kakaopor;
 
-class Wall extends Entity {
-    private double healthPoint;
-    private double armor;
+import static hu.pericles.kakaopor.states.PlayState.MAX_LEVEL;
 
-    public Wall(float startPositionX, float startPositionY, double healthPoint, double armor) {
+public class Wall extends Entity {
+    private static final int PRICE = 250;
+    private static final int[] PRICE_UPGRADE = {125, 250, 500, 1000, 2000};
+
+    private static int level;
+
+    private double healthPoint;
+
+    public Wall(float startPositionX, float startPositionY, double healthPoint, int level) {
         super(startPositionX, startPositionY);
         this.healthPoint = healthPoint;
-        this.armor = armor;
+        Wall.level = 0;
     }
 
-    protected void setHealth(double healthChange) {
+    protected void setHealthPoint(double healthChange) {
         healthPoint += healthChange;
     }
 
-    protected void setArmor(double armor) {
-        this.armor = armor;
-    }
-
-    protected double getHealth() {
+    protected double getHealthPoint() {
         return healthPoint;
     }
 
-    protected double getArmor() {
-        return armor;
+    public static int getLevel() {
+        return level;
     }
 
+    public static void upLevel() {
+        if (level < MAX_LEVEL) {
+            level++;
+        }
+    }
+
+    public static int getPRICE() {
+        return PRICE;
+    }
+
+    public static int getPriceUpgrade(int level) {
+        if (level < MAX_LEVEL - 2) {
+            return PRICE_UPGRADE[level + 1];
+        }
+        return 0;
+    }
 
 }

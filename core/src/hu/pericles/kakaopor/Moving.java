@@ -4,7 +4,7 @@ public abstract class Moving extends Entity {
     private int speed;
     private boolean isRotated;
     private float currentDestinationX;
-    private float currentDestionationY;
+    private float currentDestinationY;
 
     Moving(float startPositionX, float startPositionY, int speed) {
         super(startPositionX, startPositionY);
@@ -34,10 +34,10 @@ public abstract class Moving extends Entity {
         }
 
         /*If this is a new destination, then this Moving Entity is not rotated to the new destination*/
-        if (destinationX != currentDestinationX || destinationY != currentDestionationY) {
+        if (destinationX != currentDestinationX || destinationY != currentDestinationY) {
             isRotated = false;
             currentDestinationX = destinationX;
-            currentDestionationY = destinationY;
+            currentDestinationY = destinationY;
         }
         /*rotate only once per destination*/
         if (!isRotated) {

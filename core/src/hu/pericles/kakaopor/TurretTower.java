@@ -1,6 +1,7 @@
 package hu.pericles.kakaopor;
 
 public class TurretTower extends Entity {
+
     private double damage;
 
     public TurretTower(float positionX, float positionY, double damage) {
@@ -16,4 +17,5 @@ public class TurretTower extends Entity {
         return damage;
 
     }
+
 }
