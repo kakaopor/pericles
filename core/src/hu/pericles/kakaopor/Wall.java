@@ -10,7 +10,7 @@ public class Wall extends Entity {
 
     private double healthPoint;
 
-    public Wall(float startPositionX, float startPositionY, double healthPoint, int level) {
+    public Wall(float startPositionX, float startPositionY, double healthPoint) {
         super(startPositionX, startPositionY);
         this.healthPoint = healthPoint;
         Wall.level = 0;
