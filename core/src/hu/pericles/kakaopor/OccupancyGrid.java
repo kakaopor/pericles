@@ -9,13 +9,11 @@ public class OccupancyGrid {
     public int width;
     public OccupancyGridPiece[][] grid;
 
-
-
     public OccupancyGrid(int baseX, int baseY, int width, int height) {
         this.baseX = baseX;
         this.baseY = baseY;
-        this.width = width;
         this.height = height;
+        this.width = width;
         grid = new OccupancyGridPiece[width][height];
         makeGrid();
     }
@@ -26,11 +24,13 @@ public class OccupancyGrid {
                 grid[i][j] = new OccupancyGridPiece(i, j);
             }
         }
-//        those would be the walls, or anything
-        /*UI buttons*/
-        for (int i = 0; i < 12; i++) {
+
+        for (int i = 0; i < 24 ; i++) {
             grid[0][i].isFilled = true;
+            grid[1][i].isFilled = true;
         }
+//        those would be the walls
+        /*grid[0][4].isFilled = true;;*/
     }
 
     public void destinationDetermination() {
@@ -116,7 +116,4 @@ public class OccupancyGrid {
 //feel free to make getter setters
 
 }
-
-
-
 

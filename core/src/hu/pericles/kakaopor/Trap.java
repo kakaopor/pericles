@@ -1,5 +1,7 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.graphics.Texture;
+
 import static hu.pericles.kakaopor.states.PlayState.MAX_LEVEL;
 
 public class Trap extends Entity {
@@ -10,8 +12,8 @@ public class Trap extends Entity {
 
     private double damage;
 
-    public Trap(float startPositionX, float startPositionY, double damage) {
-        super(startPositionX, startPositionY);
+    public Trap(Texture texture, float x, float y, double damage) {
+        super(texture, x, y);
         this.damage = damage;
         level = 0;
     }

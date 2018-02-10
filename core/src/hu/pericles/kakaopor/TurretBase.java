@@ -1,5 +1,7 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.graphics.Texture;
+
 import static hu.pericles.kakaopor.states.PlayState.MAX_LEVEL;
 
 public class TurretBase extends Entity {
@@ -8,8 +10,8 @@ public class TurretBase extends Entity {
 
     private static int level;
 
-    public TurretBase(float positionX, float positionY) {
-        super(positionX, positionY);
+    public TurretBase(Texture texture, float x, float y) {
+        super(texture, x, y);
         level = 0;
     }
 

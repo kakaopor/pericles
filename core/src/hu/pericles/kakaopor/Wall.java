@@ -1,5 +1,7 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.graphics.Texture;
+
 import static hu.pericles.kakaopor.states.PlayState.MAX_LEVEL;
 
 public class Wall extends Entity {
@@ -10,8 +12,8 @@ public class Wall extends Entity {
 
     private double healthPoint;
 
-    public Wall(float startPositionX, float startPositionY, double healthPoint) {
-        super(startPositionX, startPositionY);
+    public Wall(Texture texture, float x, float y, double healthPoint) {
+        super(texture, x, y);
         this.healthPoint = healthPoint;
         Wall.level = 0;
     }

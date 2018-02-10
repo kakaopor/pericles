@@ -1,13 +1,16 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.graphics.Texture;
+
 public abstract class Moving extends Entity {
     private int speed;
     private boolean isRotated;
-    private float currentDestinationX;
-    private float currentDestinationY;
+    //private float currentDestinationX;
+   // private float currentDestinationY;
 
-    Moving(float startPositionX, float startPositionY, int speed) {
-        super(startPositionX, startPositionY);
+    Moving(Texture texture, float x, float y, int speed) {
+        super(texture, x, y);
+        //super(startPositionX, startPositionY);
         this.speed = speed;
         this.isRotated = false;
     }
@@ -20,7 +23,7 @@ public abstract class Moving extends Entity {
         this.speed = speed;
     }
 
-    public void move(float destinationX, float destinationY) {
+    /*public void move(float destinationX, float destinationY) {
         float deltaX = destinationX - getPositionX();
         float deltaY = destinationY - getPositionY();
         float absolute = Math.abs(deltaX) + Math.abs(deltaY);
@@ -33,18 +36,18 @@ public abstract class Moving extends Entity {
             );
         }
 
-        /*If this is a new destination, then this Moving Entity is not rotated to the new destination*/
+        If this is a new destination, then this Moving Entity is not rotated to the new destination
         if (destinationX != currentDestinationX || destinationY != currentDestinationY) {
             isRotated = false;
             currentDestinationX = destinationX;
             currentDestinationY = destinationY;
         }
-        /*rotate only once per destination*/
+        rotate only once per destination
         if (!isRotated) {
             float rotateDeg = (float) Math.atan2(deltaX, deltaY) * (float) (180 / Math.PI);
             rotate(rotateDeg);
             isRotated = true;
         }
-    }
+    }*/
 
 }

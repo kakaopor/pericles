@@ -1,32 +1,13 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
-public abstract class Entity {
-    private float positionX, positionY;
-    private int id;
-    public Sprite sprite;
+abstract class Entity extends Sprite{
 
-    Entity(float positionX, float positionY) {
-        this.positionX = positionX;
-        this.positionY = positionY;
+    Entity(Texture texture, float x, float y) {
+        super(texture);
+        this.setX(x);
+        this.setY(y);
     }
-
-    public void setPosition(float positionX, float positionY) {
-        this.positionX = positionX;
-        this.positionY = positionY;
-    }
-
-    public float getPositionX() {
-        return positionX;
-    }
-
-    public float getPositionY() {
-        return positionY;
-    }
-
-    public void rotate(float rotateDeg) {
-        this.sprite.rotate(rotateDeg);
-    }
-
 }

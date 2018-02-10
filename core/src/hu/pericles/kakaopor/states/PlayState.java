@@ -1,7 +1,6 @@
 package hu.pericles.kakaopor.states;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -53,19 +52,17 @@ public class PlayState extends State implements InputProcessor {
     /*Maximum level of an Entity*/
     public static  final int MAX_LEVEL = 6;
     /*Maximum number of */
-    private static final int NUMBER_OF_ENEMY = 10;
-    private static final int NUMBER_OF_TRAP = 20;
-    private static final int NUMBER_OF_TOWER = 20;
-    private static final int NUMBER_OF_WALL = 20;
+    private static final int MAX_NUMBER_OF_USER_OBJECTS = 168;
+    private static final int NUMBER_OF_ENEMY = 1;
 
-    private static final int SIZE_TILE = 64;
-    private OccupancyGrid asd = new OccupancyGrid(8, 6, 16, 12);
+    private static final int SIZE_TILE = 32;
+    private OccupancyGrid asd = new OccupancyGrid(16, 12, 32, 24);
 
     private Enemy[] enemy = new Enemy[NUMBER_OF_ENEMY];
-    private Trap[] trap = new Trap[NUMBER_OF_TRAP];
-    private TurretTower[] turretTower = new TurretTower[NUMBER_OF_TOWER];
-    private TurretBase[] turretBase = new TurretBase[NUMBER_OF_TOWER];
-    private Wall[] wall = new Wall[NUMBER_OF_WALL];
+    private Trap[] trap = new Trap[MAX_NUMBER_OF_USER_OBJECTS];
+    private TurretTower[] turretTower = new TurretTower[MAX_NUMBER_OF_USER_OBJECTS];
+    private TurretBase[] turretBase = new TurretBase[MAX_NUMBER_OF_USER_OBJECTS];
+    private Wall[] wall = new Wall[MAX_NUMBER_OF_USER_OBJECTS];
     private Base base;
 
     /*GLOBAL VARIABLES*/
@@ -75,7 +72,7 @@ public class PlayState extends State implements InputProcessor {
     private String selectedType = "Trap";
 
     private static int gold = 5000;
-    private static int experiencePoint = 0;
+    //private static int experiencePoint = 0;
     private static int increaseGold = 100;
 
     PlayState(GameStateManager gameStateManager) {
@@ -112,36 +109,31 @@ public class PlayState extends State implements InputProcessor {
         buttonNewTurret = new Sprite(buttonNewTurretTexture);
         buttonNewTurret.setPosition(0, Gdx.graphics.getHeight() );
         buttonNewTrap = new Sprite(buttonNewTrapTexture);
-        buttonNewTrap.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE);
+        buttonNewTrap.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 2);
         buttonNewWall = new Sprite(buttonNewWallTexture);
-        buttonNewWall.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 2);
+        buttonNewWall.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 4);
         buttonUpgradeBase = new Sprite(buttonUpgradeBaseTexture);
-        buttonUpgradeBase.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 3);
-        buttonUpgradeTurret = new Sprite(buttonUpgradeTrapTexture);
-        buttonUpgradeTurret.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 4);
-        buttonUpgradeTrap = new Sprite(buttonUpgradeTurretTexture);
-        buttonUpgradeTrap.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 5);
+        buttonUpgradeBase.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 6);
+        buttonUpgradeTurret = new Sprite(buttonUpgradeTurretTexture);
+        buttonUpgradeTurret.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 8);
+        buttonUpgradeTrap = new Sprite(buttonUpgradeTrapTexture);
+        buttonUpgradeTrap.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 10);
         buttonUpgradeWall = new Sprite(buttonUpgradeWallTexture);
-        buttonUpgradeWall.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 6);
+        buttonUpgradeWall.setPosition(0, Gdx.graphics.getHeight() - SIZE_TILE * 12);
 
         /*Font*/
         font = new BitmapFont(Gdx.files.internal("font/pericles_roboto.fnt"), false);
 
-        for (int i = 0; i < NUMBER_OF_TRAP; i++) {
-            trap[i] = new Trap(0, 0, 100);
-            trap[i].sprite = new Sprite(trapLevelTexture[0]);
-        }
-
         for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-            enemy[i] = new Enemy(SIZE_TILE, 0, 5, 1 ,10);
-            enemy[i].sprite = new Sprite(enemyLevelTexture[0]);
-            enemy[i].sprite.setPosition(enemy[i].getPositionX(), enemy[i].getPositionY() );
+            enemy[i] = new Enemy(enemyLevelTexture[0], SIZE_TILE * 2, SIZE_TILE * 2, 1, 10, 0);
+            enemy[i].setPosition(SIZE_TILE * 2, SIZE_TILE * 2);
+            enemy[i].setSize(SIZE_TILE, SIZE_TILE);
         }
 
-        base = new Base(0, 0, 100);
-        base.sprite = new Sprite(baseLevelTexture[0]);
-        base.setPosition(SIZE_TILE * 8, SIZE_TILE * 7);
-        asd.grid[7][6].isFilled = true;
+        base = new Base(baseLevelTexture[0], SIZE_TILE * 8, SIZE_TILE * 7,  100);
+        base.setPosition(SIZE_TILE * 16, Gdx.graphics.getHeight() - SIZE_TILE * 12);
+        //base.setSize(SIZE_TILE * 2, SIZE_TILE * 2);
+        /*asd.grid[7][6].isFilled = true;
         asd.grid[7][7].isFilled = true;
         asd.grid[8][5].isFilled = true;
         asd.grid[8][6].isFilled = true;
@@ -152,25 +144,23 @@ public class PlayState extends State implements InputProcessor {
         asd.grid[9][7].isFilled = true;
         asd.grid[9][8].isFilled = true;
         asd.grid[10][6].isFilled = true;
-        asd.grid[10][7].isFilled = true;
+        asd.grid[10][7].isFilled = true;*/
 
-        base.sprite.setPosition(SIZE_TILE * 8, SIZE_TILE * 7 );
-
-        for (int i = 0; i < NUMBER_OF_TOWER; i++) {
-            turretTower[i] = new TurretTower(0, 0, 25f);
-            turretBase[i] = new TurretBase(0, 0);
-            turretTower[i].sprite = new Sprite(turretTowerLevelTexture[0]);
-            turretBase[i].sprite = new Sprite(turretBaseLevelTexture[0]);
-            turretTower[i].sprite.setPosition(turretTower[i].getPositionX(), turretTower[i].getPositionY() );
-            turretBase[i].sprite.setPosition(turretBase[i].getPositionX(), turretBase[i].getPositionY() );
-            turretTower[i].sprite.rotate(-90);
+        for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
+            //Turrets
+            turretTower[i] = new TurretTower(turretTowerLevelTexture[0], 0, 0, 5);
+            turretBase[i] = new TurretBase(turretBaseLevelTexture[0], 0, 0);
+            turretBase[i].setSize(SIZE_TILE, SIZE_TILE);
+            //Traps
+            trap[i] = new Trap(trapLevelTexture[0], 0, 100, 5);
+            trap[i].setSize(SIZE_TILE, SIZE_TILE);
+            //Walls
+            wall[i] = new Wall(wallLevelTexture[0], 0, 0, 10);
+            wall[i].setSize(SIZE_TILE, SIZE_TILE);
         }
 
-        for (int i = 0; i < NUMBER_OF_WALL; i++) {
-            wall[i] = new Wall(0, 0, 200);
-            wall[i].sprite = new Sprite(wallLevelTexture[0]);
-            wall[i].sprite.setPosition(wall[i].getPositionX(), wall[i].getPositionY() );
-        }
+
+        asd.destinationDetermination();
 
         Gdx.input.setInputProcessor(this);
     }
@@ -181,7 +171,7 @@ public class PlayState extends State implements InputProcessor {
     @Override
     public void render(SpriteBatch batch) {
 
-        asd.destinationDetermination();
+        //asd.destinationDetermination();
         batch.begin();
 
         /*DRAW UI*/
@@ -195,34 +185,39 @@ public class PlayState extends State implements InputProcessor {
         buttonUpgradeWall.draw(batch);
         /*Draw Texts*/
         font.setColor(0,0,0,1);
-        font.draw(batch, "Gold: " + gold, SIZE_TILE, Gdx.graphics.getHeight() );
-        font.draw(batch, "XP: " + experiencePoint, SIZE_TILE, Gdx.graphics.getHeight() - SIZE_TILE);
-        font.draw(batch, "HP: " + Base.getHealthPoint(), SIZE_TILE, Gdx.graphics.getHeight() - SIZE_TILE * 2);
-        font.draw(batch, "Base level: " + Base.getLevel(), SIZE_TILE, Gdx.graphics.getHeight() - SIZE_TILE * 3);
+        font.draw(batch, "Gold: " + gold, SIZE_TILE * 2, Gdx.graphics.getHeight() );
+        //font.draw(batch, "XP: " + experiencePoint, SIZE_TILE, Gdx.graphics.getHeight() - SIZE_TILE);
+        font.draw(batch, "HP: " + Base.getHealthPoint(), SIZE_TILE * 2, Gdx.graphics.getHeight() - SIZE_TILE * 4);
+        font.draw(batch, "Base level: " + Base.getLevel(), SIZE_TILE * 2, Gdx.graphics.getHeight() - SIZE_TILE * 6);
 
         gold += increaseGold;
 
         for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-            int tileX = (int)Math.floor(enemy[i].getPositionX() / SIZE_TILE);
-            int tileY = (int)Math.floor(enemy[i].getPositionY() / SIZE_TILE);
 
             if (enemy[i].isAlive() ) {
-                enemy[i].sprite.draw(batch);
-                if (enemy[i].Move(tileX, tileY, 8, 7) ) {
-                    enemy[i].move(SIZE_TILE * 8, SIZE_TILE * 7);
-                } else {
-                    Base.setHealthPoint(Base.getHealthPoint() - enemy[i].getHealth());
+                enemy[i].draw(batch);
+                int nextX = asd.grid[(int)(enemy[i].getX() / SIZE_TILE)][(int)(enemy[i].getY() / SIZE_TILE)].desX;
+                int nextY = asd.grid[(int)(enemy[i].getX() / SIZE_TILE)][(int)(enemy[i].getY() / SIZE_TILE)].desY;
+                float deltaX = nextX * SIZE_TILE - enemy[i].getX();
+                float deltaY = nextY * SIZE_TILE - enemy[i].getY();
+                float abs = Math.abs(deltaX) + Math.abs(deltaY);
+                //DEBUG
+                // System.out.println("nextX: " + nextX + " nextY: " + nextY);
+                enemy[i].translate(deltaX / abs, deltaY / abs);
+                enemy[i].setPosition(enemy[i].getX() + deltaX / abs, enemy[i].getY() + deltaY / abs);
+                if (nextX == asd.baseX && nextY == asd.baseY) {
+                    Base.setHealthPoint(Base.getHealthPoint() - enemy[i].getHealth() );
                     enemy[i].kill();
                 }
             }
         }
 
-/*if (Base.getHealthPoint() <= 0) {
- Base.kill();*/
-
+        if (Base.getHealthPoint() <= 0) {
+            Base.kill();
+        }
         if (Base.isAlive() ) {
             base.rotator();
-            base.sprite.draw(batch);
+            base.draw(batch);
         } else {
             font.setColor(1, 0, 0 ,1);
             font.draw(batch, "Your Base Has Been Destroyed", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
@@ -236,23 +231,20 @@ public class PlayState extends State implements InputProcessor {
             }, delay);
         }
 
-        for (int i = 0; i < NUMBER_OF_TRAP; i++) {
-            if (trap[i].getPositionX() != 0) {
-                trap[i].sprite.draw(batch);
-            }
-        }
-
-        for (int i = 0; i < NUMBER_OF_TOWER; i++) {
-            if (turretBase[i].getPositionX() != 0) {
-                turretBase[i].sprite.draw(batch);
-                turretTower[i].sprite.draw(batch);
+        for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
+            //Turrets
+            if (turretBase[i].getX() != 0) {
+                turretBase[i].draw(batch);
+                turretTower[i].draw(batch);
                 turretTower[i].rotate(3);
             }
-        }
-
-        for (int i = 0; i < NUMBER_OF_WALL; i++) {
-            if (wall[i].getPositionX() != 0) {
-                wall[i].sprite.draw(batch);
+            //Traps
+            if (trap[i].getX() != 0) {
+                trap[i].draw(batch);
+            }
+            //Walls
+            if (wall[i].getX() != 0) {
+                wall[i].draw(batch);
             }
         }
 
@@ -310,50 +302,44 @@ public class PlayState extends State implements InputProcessor {
 
         /*UI Buttons*/
         if (screenX <= SIZE_TILE) {
-            if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE ) {
+            if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 2) {
                 selectedType = "Turret";
-            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 2 ) {
+            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 4 ) {
                 selectedType = "Trap";
-            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 3) {
+            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 6) {
                 selectedType = "Wall";
-            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 4) {
+            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 8) {
                 if (Base.getLevel() < MAX_LEVEL - 1 && gold >= Base.getPriceUpgrade(Base.getLevel() ) ) {
                     gold -= Base.getPriceUpgrade(Base.getLevel() );
                     Base.upLevel();
-                    base.sprite = new Sprite(baseLevelTexture[Base.getLevel()]);
-                    base.setPosition(SIZE_TILE * 8, SIZE_TILE * 7);
-                    base.sprite.setPosition(base.getPositionX(), base.getPositionY() );
+                    base.setTexture(baseLevelTexture[Base.getLevel()]);
+                    base.setPosition(SIZE_TILE * 16, SIZE_TILE * 12);
                     increaseGold += Base.getLevel();
                     Base.setHealthPoint(Base.getHealthPoint() * Base.getLevel());
                 }
-            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 5) {
+            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 10) {
                 if (TurretBase.getLevel() < MAX_LEVEL - 1 && gold >= TurretBase.getPriceUpgrade(TurretBase.getLevel() ) ) {
                     gold -= TurretBase.getPriceUpgrade(TurretBase.getLevel());
                     TurretBase.upLevel();
-                    for (int i = 0; i < NUMBER_OF_TOWER; i++) {
-                        turretTower[i].sprite = new Sprite(turretTowerLevelTexture[TurretBase.getLevel()]);
-                        turretBase[i].sprite = new Sprite(turretBaseLevelTexture[TurretBase.getLevel()]);
-                        turretTower[i].sprite.setPosition(turretTower[i].getPositionX(), turretTower[i].getPositionY());
-                        turretBase[i].sprite.setPosition(turretBase[i].getPositionX(), turretBase[i].getPositionY());
-                        turretTower[i].sprite.rotate(-90);
+                    for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
+                        turretBase[i].setTexture(turretBaseLevelTexture[TurretBase.getLevel()]);
+                        turretTower[i].setTexture(turretTowerLevelTexture[TurretBase.getLevel()]);
                     }
                 }
-            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 6) {
+            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 12) {
                 if (Trap.getLevel() <  MAX_LEVEL - 1 && gold >= Trap.getPriceUpgrade(Trap.getLevel() ) ) {
                     gold -= Trap.getPriceUpgrade(Trap.getLevel() );
                     Trap.upLevel();
-                    for (int i = 0; i < NUMBER_OF_TRAP; i++) {
-                        trap[i].sprite = new Sprite(trapLevelTexture[Trap.getLevel()]);
-                        trap[i].sprite.setPosition(trap[i].getPositionX(), trap[i].getPositionY() );
+                    for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
+                        trap[i].setTexture(trapLevelTexture[Trap.getLevel()]);
                     }
                 }
-            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 7) {
+            } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 14) {
                 if (Wall.getLevel() < MAX_LEVEL - 1 && gold >= Wall.getPriceUpgrade(Wall.getLevel() ) ) {
                     gold -= Wall.getPriceUpgrade(Wall.getLevel() );
                     Wall.upLevel();
-                    for (int i = 0; i < NUMBER_OF_WALL; i++) {
-                        wall[i].sprite = new Sprite(wallLevelTexture[Wall.getLevel()]);
-                        wall[i].sprite.setPosition(wall[i].getPositionX(), wall[i].getPositionY());
+                    for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
+                        wall[i].setTexture(wallLevelTexture[Wall.getLevel()]);
                     }
                 }
             }
@@ -367,16 +353,19 @@ public class PlayState extends State implements InputProcessor {
         int y_parsed_inverse = (int)Math.floor( (Gdx.graphics.getHeight() - screenY) / SIZE_TILE);
 
         if (!asd.grid[x_parsed][y_parsed_inverse].isFilled) {
-            if (selectedType.equals("Trap") && gold >= Trap.getPRICE() && actualTrap < NUMBER_OF_TRAP - 1) {
+            if (selectedType.equals("Trap") && gold >= Trap.getPRICE() && actualTrap < MAX_NUMBER_OF_USER_OBJECTS - 1) {
                 asd.grid[x_parsed][y_parsed_inverse].isFilled = true;
+                asd.destinationDetermination();
                 gold -= Trap.getPRICE();
                 actualTrap++;
-            } else if (selectedType.equals("Turret") && gold >= TurretBase.getPRICE() && actualTurret < NUMBER_OF_TOWER - 1) {
+            } else if (selectedType.equals("Turret") && gold >= TurretBase.getPRICE() && actualTurret < MAX_NUMBER_OF_USER_OBJECTS - 1) {
                 asd.grid[x_parsed][y_parsed_inverse].isFilled = true;
+                asd.destinationDetermination();
                 gold -= TurretBase.getPRICE();
                 actualTurret++;
-            } else if (selectedType.equals("Wall") && gold >= Wall.getPRICE() && actualWall < NUMBER_OF_WALL - 1) {
+            } else if (selectedType.equals("Wall") && gold >= Wall.getPRICE() && actualWall < MAX_NUMBER_OF_USER_OBJECTS - 1) {
                 asd.grid[x_parsed][y_parsed_inverse].isFilled = true;
+                asd.destinationDetermination();
                 gold -= Wall.getPRICE();
                 actualWall++;
             }
@@ -394,17 +383,15 @@ public class PlayState extends State implements InputProcessor {
         int x_parsed = (int)Math.floor(screenX / SIZE_TILE) * SIZE_TILE;
         int y_parsed_inverse = Gdx.graphics.getHeight() - (int)Math.floor(screenY / SIZE_TILE) * SIZE_TILE;
 
-        if (selectedType.equals("Trap") ) {
-            trap[actualTrap].setPosition(x_parsed, y_parsed_inverse);
-            trap[actualTrap].sprite.setPosition(trap[actualTrap].getPositionX(), trap[actualTrap].getPositionY() );
-        } else if (selectedType.equals("Turret") ) {
-            turretBase[actualTurret].setPosition(x_parsed, y_parsed_inverse);
-            turretTower[actualTurret].setPosition(x_parsed, y_parsed_inverse);
-            turretBase[actualTurret].sprite.setPosition(turretBase[actualTurret].getPositionX(), turretBase[actualTurret].getPositionY() );
-            turretTower[actualTurret].sprite.setPosition(turretTower[actualTurret].getPositionX(), turretTower[actualTurret].getPositionY() );
-        } else if (selectedType.equals("Wall") ) {
-            wall[actualWall].setPosition(x_parsed, y_parsed_inverse);
-            wall[actualWall].sprite.setPosition(wall[actualWall].getPositionX(), wall[actualWall].getPositionY() );
+        if(x_parsed >= SIZE_TILE * 2) {
+            if (selectedType.equals("Trap")) {
+                trap[actualTrap].setPosition(x_parsed, y_parsed_inverse);
+            } else if (selectedType.equals("Turret")) {
+                turretBase[actualTurret].setPosition(x_parsed, y_parsed_inverse);
+                turretTower[actualTurret].setPosition(x_parsed, y_parsed_inverse);
+            } else if (selectedType.equals("Wall")) {
+                wall[actualWall].setPosition(x_parsed, y_parsed_inverse);
+            }
         }
         return false;
     }

@@ -1,11 +1,13 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.graphics.Texture;
+
 public class TurretTower extends Entity {
 
     private double damage;
 
-    public TurretTower(float positionX, float positionY, double damage) {
-        super(positionX, positionY);
+    public TurretTower(Texture texture, float x, float y, double damage) {
+        super(texture, x, y);
         this.damage = damage;
     }
 

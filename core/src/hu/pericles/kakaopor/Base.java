@@ -1,5 +1,7 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.graphics.Texture;
+
 import static hu.pericles.kakaopor.states.PlayState.MAX_LEVEL;
 
 public class Base extends Entity {
@@ -13,8 +15,8 @@ public class Base extends Entity {
     private static boolean rotate;
     private static int rotateCounter;
 
-    public Base(float startPositionX, float startPositionY, double healthPoint) {
-        super(startPositionX, startPositionY);
+    public Base(Texture texture, float x, float y, double healthPoint) {
+        super(texture, x, y);
         Base.healthPoint = healthPoint;
         Base.level = 0;
         Base.alive = true;

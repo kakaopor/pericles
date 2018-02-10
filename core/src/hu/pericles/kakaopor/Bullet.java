@@ -1,10 +1,12 @@
 package hu.pericles.kakaopor;
 
+import com.badlogic.gdx.graphics.Texture;
+
 class Bullet extends Moving {
     private double damage;
 
-    public Bullet(float startPositionX, float startPositionY, int speed, double damage) {
-        super(startPositionX, startPositionY, speed);
+    public Bullet(Texture texture, float x, float y, int speed, double damage) {
+        super(texture, x, y, speed);
         this.damage = damage;
     }
 
