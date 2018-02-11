@@ -5,12 +5,9 @@ import com.badlogic.gdx.graphics.Texture;
 public abstract class Moving extends Entity {
     private int speed;
     private boolean isRotated;
-    //private float currentDestinationX;
-   // private float currentDestinationY;
 
     Moving(Texture texture, float x, float y, int speed) {
         super(texture, x, y);
-        //super(startPositionX, startPositionY);
         this.speed = speed;
         this.isRotated = false;
     }

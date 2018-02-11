@@ -10,8 +10,6 @@ public class Base extends Entity {
 
     private static double healthPoint;
     private static int level;
-    private static boolean alive;
-
     private static boolean rotate;
     private static int rotateCounter;
 
@@ -19,7 +17,6 @@ public class Base extends Entity {
         super(texture, x, y);
         Base.healthPoint = healthPoint;
         Base.level = 0;
-        Base.alive = true;
         Base.rotate = true;
         Base.rotateCounter = 0;
     }
@@ -47,14 +44,6 @@ public class Base extends Entity {
             return PRICE_UPGRADE[level + 1];
         }
         return 0;
-    }
-
-    public static boolean isAlive() {
-        return alive;
-    }
-
-    public static void kill() {
-        Base.alive = false;
     }
 
     /*Rotates the base 180 degress left, then right and repeat.*/

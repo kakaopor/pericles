@@ -8,6 +8,9 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Timer;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import hu.pericles.kakaopor.Base;
 import hu.pericles.kakaopor.Enemy;
 import hu.pericles.kakaopor.OccupancyGrid;
@@ -44,6 +47,14 @@ public class PlayState extends State implements InputProcessor {
     private Sprite buttonUpgradeTurret;
     private Sprite buttonUpgradeTrap;
     private Sprite buttonUpgradeWall;
+    /*New Entity Hologram Textures*/
+    private Texture[] holoTurretLevelTexture = new Texture[MAX_LEVEL];
+    private Texture[] holoTrapLevelTexture = new Texture[MAX_LEVEL];
+    private Texture[] holoWallLevelTexture = new Texture[MAX_LEVEL];
+    /*New Entity Hologram Sprites*/
+    private Sprite holoTurret;
+    private Sprite holoTrap;
+    private Sprite holoWall;
 
     /*FONT*/
     private BitmapFont font;
@@ -51,29 +62,32 @@ public class PlayState extends State implements InputProcessor {
     /*GAME CONSTANTS*/
     /*Maximum level of an Entity*/
     public static  final int MAX_LEVEL = 6;
-    /*Maximum number of */
-    private static final int MAX_NUMBER_OF_USER_OBJECTS = 168;
-    private static final int NUMBER_OF_ENEMY = 1;
-
+    /*Size of a Tile of the OccupancyGrid*/
     private static final int SIZE_TILE = 32;
+
     private OccupancyGrid asd = new OccupancyGrid(16, 12, 32, 24);
 
-    private Enemy[] enemy = new Enemy[NUMBER_OF_ENEMY];
-    private Trap[] trap = new Trap[MAX_NUMBER_OF_USER_OBJECTS];
-    private TurretTower[] turretTower = new TurretTower[MAX_NUMBER_OF_USER_OBJECTS];
-    private TurretBase[] turretBase = new TurretBase[MAX_NUMBER_OF_USER_OBJECTS];
-    private Wall[] wall = new Wall[MAX_NUMBER_OF_USER_OBJECTS];
+    private ArrayList<Enemy> enemy = new ArrayList<Enemy>();
+    private ArrayList<Trap> trap = new ArrayList<Trap>();
+    private ArrayList<TurretTower> turretTower = new ArrayList<TurretTower>();
+    private ArrayList<TurretBase> turretBase = new ArrayList<TurretBase>();
+    private ArrayList<Wall> wall = new ArrayList<Wall>();
     private Base base;
 
-    /*GLOBAL VARIABLES*/
-    private int actualTrap = 0;
-    private int actualTurret = 0;
-    private int actualWall = 0;
     private String selectedType = "Trap";
 
     private static int gold = 5000;
     //private static int experiencePoint = 0;
     private static int increaseGold = 100;
+    //UI reset timer variables
+    private static long uiResetTime = 500;
+    private long uiStartTime = System.currentTimeMillis();
+    //Enemy timer variables
+    private long enemyFollowingTime = 1500;
+    private long enemyStartTime = System.currentTimeMillis();
+    /*Cursor position for hologram effect*/
+    private float holoX;
+    private float holoY;
 
     PlayState(GameStateManager gameStateManager) {
         super(gameStateManager);
@@ -83,6 +97,7 @@ public class PlayState extends State implements InputProcessor {
 
         /*LOAD TEXTURES*/
         for (int i = 0; i < MAX_LEVEL; i++) {
+            /*Entity Textures*/
             /*Load Texture of Level i Base*/
             baseLevelTexture[i] = new Texture(Gdx.files.internal("base/base_level" + i + ".png") );
             /*Load Texture of Level i Trap*/
@@ -95,6 +110,13 @@ public class PlayState extends State implements InputProcessor {
             wallLevelTexture[i] = new Texture(Gdx.files.internal("wall/wall_level" + i + ".png") );
             /*Load Texture of Level i Enemy*/
             enemyLevelTexture[i] = new Texture(Gdx.files.internal("enemy/enemy_level" + i + ".png") );
+            /*New Entity Hologram Textures*/
+            /*Load Hologram Texture of Level i Turret*/
+            holoTurretLevelTexture[i] = new Texture(Gdx.files.internal("ui/new_entity/new_turret_level" + i + ".png") );
+            /*Load Hologram Texture of Level i Trap*/
+            holoTrapLevelTexture[i] = new Texture(Gdx.files.internal("ui/new_entity/new_trap_level" + i + ".png") );
+            /*Load Hologram Texture of Level i Wall*/
+            holoWallLevelTexture[i] = new Texture(Gdx.files.internal("ui/new_entity/new_wall_level" + i + ".png") );
         }
         /*LOAD UI*/
         /*Button Textures*/
@@ -124,45 +146,68 @@ public class PlayState extends State implements InputProcessor {
         /*Font*/
         font = new BitmapFont(Gdx.files.internal("font/pericles_roboto.fnt"), false);
 
-        for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-            enemy[i] = new Enemy(enemyLevelTexture[0], SIZE_TILE * 2, SIZE_TILE * 2, 1, 10, 0);
-            enemy[i].setPosition(SIZE_TILE * 2, SIZE_TILE * 2);
-            enemy[i].setSize(SIZE_TILE, SIZE_TILE);
-        }
-
-        base = new Base(baseLevelTexture[0], SIZE_TILE * 8, SIZE_TILE * 7,  100);
+        base = new Base(baseLevelTexture[0], SIZE_TILE * 16, SIZE_TILE * 12,  100);
         base.setPosition(SIZE_TILE * 16, Gdx.graphics.getHeight() - SIZE_TILE * 12);
-        //base.setSize(SIZE_TILE * 2, SIZE_TILE * 2);
-        /*asd.grid[7][6].isFilled = true;
-        asd.grid[7][7].isFilled = true;
-        asd.grid[8][5].isFilled = true;
-        asd.grid[8][6].isFilled = true;
-        asd.grid[8][7].isFilled = true;
-        asd.grid[8][8].isFilled = true;
-        asd.grid[9][5].isFilled = true;
-        asd.grid[9][6].isFilled = true;
-        asd.grid[9][7].isFilled = true;
-        asd.grid[9][8].isFilled = true;
-        asd.grid[10][6].isFilled = true;
-        asd.grid[10][7].isFilled = true;*/
-
-        for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
-            //Turrets
-            turretTower[i] = new TurretTower(turretTowerLevelTexture[0], 0, 0, 5);
-            turretBase[i] = new TurretBase(turretBaseLevelTexture[0], 0, 0);
-            turretBase[i].setSize(SIZE_TILE, SIZE_TILE);
-            //Traps
-            trap[i] = new Trap(trapLevelTexture[0], 0, 100, 5);
-            trap[i].setSize(SIZE_TILE, SIZE_TILE);
-            //Walls
-            wall[i] = new Wall(wallLevelTexture[0], 0, 0, 10);
-            wall[i].setSize(SIZE_TILE, SIZE_TILE);
-        }
-
-
+       /* asd.grid[16][12].isFilled = true;
+        asd.grid[15][12].isFilled = true;
+        asd.grid[16][13].isFilled = true;
+        asd.grid[15][13].isFilled = true;*/
         asd.destinationDetermination();
 
         Gdx.input.setInputProcessor(this);
+    }
+
+    /*Removes all dead objects*/
+    public void cleanUp() {
+        //Removes itemEnemy from enemy list, if itemEnemy isn't alive (if itemEnemy was killed by kill() method)
+        Iterator<Enemy> itemEnemy = enemy.iterator();
+
+        while(itemEnemy.hasNext()) {
+            Enemy actualEnemy = itemEnemy.next();
+            if (!actualEnemy.isAlive() ) {
+                itemEnemy.remove();
+            }
+        }
+
+        //Removes itemTrap from trap list, if itemTrap isn't alive (if itemTrap was killed by kill() method)
+        Iterator<Trap> itemTrap = trap.iterator();
+
+        while(itemTrap.hasNext()) {
+            Trap actualTrap = itemTrap.next();
+            if (!actualTrap.isAlive() ) {
+                itemTrap.remove();
+            }
+        }
+
+        //Removes itemTurretBase from turretBase list, if itemTurretBase isn't alive (if itemTurretBase was killed by kill() method)
+        Iterator<TurretBase>itemTurretBase = turretBase.iterator();
+
+        while(itemTurretBase.hasNext()) {
+            TurretBase actualTurretBase = itemTurretBase.next();
+            if (!actualTurretBase.isAlive() ) {
+                itemTurretBase.remove();
+            }
+        }
+
+        //Removes itemTurretTower from turretTower list, if itemTurretTower isn't alive (if itemTurretTower was killed by kill() method)
+        Iterator<TurretTower> itemTurretTower = turretTower.iterator();
+
+        while(itemTurretTower.hasNext()) {
+            TurretTower actualTurretTower = itemTurretTower.next();
+            if (!actualTurretTower.isAlive() ) {
+                itemTurretTower.remove();
+            }
+        }
+
+        //Removes itemWall from wall list, if itemWall isn't alive (if itemWall was killed by kill() method)
+        Iterator<Wall> itemWall = wall.iterator();
+
+        while(itemWall.hasNext()) {
+            Wall actualWall = itemWall.next();
+            if (!actualWall.isAlive() ) {
+                itemWall.remove();
+            }
+        }
     }
 
     @Override
@@ -170,11 +215,24 @@ public class PlayState extends State implements InputProcessor {
 
     @Override
     public void render(SpriteBatch batch) {
+        cleanUp();
 
         //asd.destinationDetermination();
         batch.begin();
 
         /*DRAW UI*/
+        /*Reset UI Button's Colors*/
+        //UI reset timer
+        if (System.currentTimeMillis() - uiStartTime > uiResetTime) {
+            buttonNewTurret.setColor(1, 1, 1, 1);
+            buttonNewTrap.setColor(1, 1, 1, 1);
+            buttonNewWall.setColor(1, 1, 1, 1);
+            buttonUpgradeBase.setColor(1, 1, 1, 1);
+            buttonUpgradeTurret.setColor(1, 1, 1, 1);
+            buttonUpgradeTrap.setColor(1, 1, 1, 1);
+            buttonUpgradeWall.setColor(1, 1, 1, 1);
+            uiStartTime = System.currentTimeMillis();
+        }
         /*Draw Buttons*/
         buttonNewTurret.draw(batch);
         buttonNewTrap.draw(batch);
@@ -189,38 +247,35 @@ public class PlayState extends State implements InputProcessor {
         //font.draw(batch, "XP: " + experiencePoint, SIZE_TILE, Gdx.graphics.getHeight() - SIZE_TILE);
         font.draw(batch, "HP: " + Base.getHealthPoint(), SIZE_TILE * 2, Gdx.graphics.getHeight() - SIZE_TILE * 4);
         font.draw(batch, "Base level: " + Base.getLevel(), SIZE_TILE * 2, Gdx.graphics.getHeight() - SIZE_TILE * 6);
+        /*Update and Draw New Entity Hologram Sprites*/
+        holoTurret = new Sprite(holoTurretLevelTexture[TurretBase.getLevel()] );
+        holoTrap = new Sprite(holoTrapLevelTexture[Trap.getLevel()] );
+        holoWall = new Sprite(holoWallLevelTexture[Wall.getLevel()] );
+        if (selectedType.equals("Turret") ) {
+            holoTurret.setPosition(holoX, holoY);
+            holoTurret.draw(batch);
+        } else if (selectedType.equals("Trap") ) {
+            holoTrap.setPosition(holoX, holoY);
+            holoTrap.draw(batch);
+        } else if (selectedType.equals("Wall") ) {
+            holoWall.setPosition(holoX, holoY);
+            holoWall.draw(batch);
+        }
 
         gold += increaseGold;
 
-        for (int i = 0; i < NUMBER_OF_ENEMY; i++) {
-
-            if (enemy[i].isAlive() ) {
-                enemy[i].draw(batch);
-                int nextX = asd.grid[(int)(enemy[i].getX() / SIZE_TILE)][(int)(enemy[i].getY() / SIZE_TILE)].desX;
-                int nextY = asd.grid[(int)(enemy[i].getX() / SIZE_TILE)][(int)(enemy[i].getY() / SIZE_TILE)].desY;
-                float deltaX = nextX * SIZE_TILE - enemy[i].getX();
-                float deltaY = nextY * SIZE_TILE - enemy[i].getY();
-                float abs = Math.abs(deltaX) + Math.abs(deltaY);
-                //DEBUG
-                // System.out.println("nextX: " + nextX + " nextY: " + nextY);
-                enemy[i].translate(deltaX / abs, deltaY / abs);
-                enemy[i].setPosition(enemy[i].getX() + deltaX / abs, enemy[i].getY() + deltaY / abs);
-                if (nextX == asd.baseX && nextY == asd.baseY) {
-                    Base.setHealthPoint(Base.getHealthPoint() - enemy[i].getHealth() );
-                    enemy[i].kill();
-                }
-            }
+        //Draw Base
+        if (Base.getHealthPoint() <= 0) { //if Base is dead, not draw
+            base.kill();
         }
-
-        if (Base.getHealthPoint() <= 0) {
-            Base.kill();
-        }
-        if (Base.isAlive() ) {
-            base.rotator();
+        if (base.isAlive() ) {
+            base.rotator(); //if Base is alive, rotate
             base.draw(batch);
         } else {
+            //if base is destroyed
             font.setColor(1, 0, 0 ,1);
             font.draw(batch, "Your Base Has Been Destroyed", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+            //wait a second and start new menu state
             float delay = 1; // seconds
 
             Timer.schedule(new Timer.Task(){
@@ -231,20 +286,61 @@ public class PlayState extends State implements InputProcessor {
             }, delay);
         }
 
-        for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
-            //Turrets
-            if (turretBase[i].getX() != 0) {
-                turretBase[i].draw(batch);
-                turretTower[i].draw(batch);
-                turretTower[i].rotate(3);
+        //Enemy start timer
+        if (System.currentTimeMillis() - enemyStartTime > enemyFollowingTime) {
+            enemy.add(new Enemy(enemyLevelTexture[0], SIZE_TILE * 2, SIZE_TILE * 0, 1, 5, 0));
+            enemyStartTime = System.currentTimeMillis();
+        }
+
+        for (Enemy iterator : enemy) {
+            iterator.draw(batch);
+            int nextX = asd.grid[(int)(iterator.getX() / SIZE_TILE)][(int)(iterator.getY() / SIZE_TILE)].desX;
+            int nextY = asd.grid[(int)(iterator.getX() / SIZE_TILE)][(int)(iterator.getY() / SIZE_TILE)].desY;
+            float deltaX = nextX * SIZE_TILE - iterator.getX();
+            float deltaY = nextY * SIZE_TILE - iterator.getY();
+            float abs = Math.abs(deltaX) + Math.abs(deltaY);
+            iterator.translate(deltaX / abs, deltaY / abs);
+            iterator.setPosition(iterator.getX() + deltaX / abs, iterator.getY() + deltaY / abs);
+            iterator.setSize(SIZE_TILE, SIZE_TILE);
+            if (nextX == asd.baseX && nextY == asd.baseY) {
+                Base.setHealthPoint(Base.getHealthPoint() - iterator.getHealth() );
+                iterator.kill();
             }
-            //Traps
-            if (trap[i].getX() != 0) {
-                trap[i].draw(batch);
+        }
+
+        //Draw TurretBases
+        for (TurretBase iterator : turretBase) {
+            if (iterator.getX() != 0) {
+                iterator.setPosition(iterator.getX(), iterator.getY());
+                iterator.setSize(SIZE_TILE, SIZE_TILE);
+                iterator.draw(batch);
             }
-            //Walls
-            if (wall[i].getX() != 0) {
-                wall[i].draw(batch);
+        }
+
+        //Draw TurretTowers
+        for (TurretTower iterator:turretTower) {
+            if (iterator.getX() != 0) {
+                iterator.setPosition(iterator.getX(), iterator.getY());
+                iterator.rotate(5);
+                iterator.draw(batch);
+            }
+        }
+
+        //Draw traps
+        for (Trap iterator : trap) {
+            if (iterator.getX() != 0) {
+                iterator.setPosition(iterator.getX(), iterator.getY());
+                iterator.setSize(SIZE_TILE, SIZE_TILE);
+                iterator.draw(batch);
+            }
+        }
+
+        //Draw Walls
+        for (Wall iterator : wall) {
+            if (iterator.getX() != 0) {
+                iterator.setPosition(iterator.getX(), iterator.getY());
+                iterator.setSize(SIZE_TILE, SIZE_TILE);
+                iterator.draw(batch);
             }
         }
 
@@ -268,6 +364,12 @@ public class PlayState extends State implements InputProcessor {
             wallLevelTexture[i].dispose();
             /*Dispose Texture of Level i Enemy*/
             enemyLevelTexture[i].dispose();
+            /*Dispose Texture of Level i New Turret Hologram*/
+            holoTurretLevelTexture[i].dispose();
+            /*Dispose Texture of Level i New Turret Hologram*/
+            holoTrapLevelTexture[i].dispose();
+            /*Dispose Texture of Level i New Turret Hologram*/
+            holoWallLevelTexture[i].dispose();
         }
         /*Dispose UI Buttons*/
         buttonNewTurretTexture.dispose();
@@ -282,7 +384,6 @@ public class PlayState extends State implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
-        // if (keycode == Input:keys.E) <-- E for E key
         return false;
     }
 
@@ -301,13 +402,16 @@ public class PlayState extends State implements InputProcessor {
         int y_parsed = Gdx.graphics.getHeight() - screenY;
 
         /*UI Buttons*/
-        if (screenX <= SIZE_TILE) {
+        if (screenX <= SIZE_TILE * 2) {
             if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 2) {
                 selectedType = "Turret";
+                buttonNewTurret.setColor(1,1,1,0.5f);
             } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 4 ) {
                 selectedType = "Trap";
+                buttonNewTrap.setColor(1,1,1,0.5f);
             } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 6) {
                 selectedType = "Wall";
+                buttonNewWall.setColor(1,1,1,0.5f);
             } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 8) {
                 if (Base.getLevel() < MAX_LEVEL - 1 && gold >= Base.getPriceUpgrade(Base.getLevel() ) ) {
                     gold -= Base.getPriceUpgrade(Base.getLevel() );
@@ -317,31 +421,40 @@ public class PlayState extends State implements InputProcessor {
                     increaseGold += Base.getLevel();
                     Base.setHealthPoint(Base.getHealthPoint() * Base.getLevel());
                 }
+                buttonUpgradeBase.setColor(1,1,1,0.5f);
             } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 10) {
                 if (TurretBase.getLevel() < MAX_LEVEL - 1 && gold >= TurretBase.getPriceUpgrade(TurretBase.getLevel() ) ) {
                     gold -= TurretBase.getPriceUpgrade(TurretBase.getLevel());
                     TurretBase.upLevel();
-                    for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
-                        turretBase[i].setTexture(turretBaseLevelTexture[TurretBase.getLevel()]);
-                        turretTower[i].setTexture(turretTowerLevelTexture[TurretBase.getLevel()]);
+
+                    for (TurretBase iterator : turretBase) {
+                        iterator.setTexture(turretBaseLevelTexture[TurretBase.getLevel()] );
                     }
+
+                    for (TurretTower iterator : turretTower) {
+                        iterator.setTexture(turretTowerLevelTexture[TurretBase.getLevel()] );
+                    }
+
                 }
+                buttonUpgradeTurret.setColor(1,1,1,0.5f);
             } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 12) {
                 if (Trap.getLevel() <  MAX_LEVEL - 1 && gold >= Trap.getPriceUpgrade(Trap.getLevel() ) ) {
                     gold -= Trap.getPriceUpgrade(Trap.getLevel() );
                     Trap.upLevel();
-                    for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
-                        trap[i].setTexture(trapLevelTexture[Trap.getLevel()]);
+                    for (Trap iterator : trap) {
+                        iterator.setTexture(trapLevelTexture[Trap.getLevel()]);
                     }
                 }
+                buttonUpgradeTrap.setColor(1,1,1,0.5f);
             } else if (y_parsed >= Gdx.graphics.getHeight() - SIZE_TILE * 14) {
                 if (Wall.getLevel() < MAX_LEVEL - 1 && gold >= Wall.getPriceUpgrade(Wall.getLevel() ) ) {
                     gold -= Wall.getPriceUpgrade(Wall.getLevel() );
                     Wall.upLevel();
-                    for (int i = 0; i < MAX_NUMBER_OF_USER_OBJECTS; i++) {
-                        wall[i].setTexture(wallLevelTexture[Wall.getLevel()]);
+                    for (Wall iterator : wall) {
+                        iterator.setTexture(wallLevelTexture[Wall.getLevel()] );
                     }
                 }
+                buttonUpgradeWall.setColor(1,1,1,0.5f);
             }
         }
         return false;
@@ -353,21 +466,22 @@ public class PlayState extends State implements InputProcessor {
         int y_parsed_inverse = (int)Math.floor( (Gdx.graphics.getHeight() - screenY) / SIZE_TILE);
 
         if (!asd.grid[x_parsed][y_parsed_inverse].isFilled) {
-            if (selectedType.equals("Trap") && gold >= Trap.getPRICE() && actualTrap < MAX_NUMBER_OF_USER_OBJECTS - 1) {
+            if (selectedType.equals("Trap") && gold >= Trap.getPRICE() ) {
                 asd.grid[x_parsed][y_parsed_inverse].isFilled = true;
                 asd.destinationDetermination();
                 gold -= Trap.getPRICE();
-                actualTrap++;
-            } else if (selectedType.equals("Turret") && gold >= TurretBase.getPRICE() && actualTurret < MAX_NUMBER_OF_USER_OBJECTS - 1) {
+                trap.add( new Trap(trapLevelTexture[Trap.getLevel()], x_parsed * SIZE_TILE, y_parsed_inverse * SIZE_TILE, 5) );
+            } else if (selectedType.equals("Turret") && gold >= TurretBase.getPRICE() ) {
                 asd.grid[x_parsed][y_parsed_inverse].isFilled = true;
                 asd.destinationDetermination();
                 gold -= TurretBase.getPRICE();
-                actualTurret++;
-            } else if (selectedType.equals("Wall") && gold >= Wall.getPRICE() && actualWall < MAX_NUMBER_OF_USER_OBJECTS - 1) {
+                turretBase.add( new TurretBase(turretBaseLevelTexture[TurretBase.getLevel()], x_parsed * SIZE_TILE, y_parsed_inverse * SIZE_TILE) );
+                turretTower.add( new TurretTower(turretTowerLevelTexture[TurretBase.getLevel()], x_parsed * SIZE_TILE, y_parsed_inverse * SIZE_TILE, 5) );
+            } else if (selectedType.equals("Wall") && gold >= Wall.getPRICE() ) {
                 asd.grid[x_parsed][y_parsed_inverse].isFilled = true;
                 asd.destinationDetermination();
                 gold -= Wall.getPRICE();
-                actualWall++;
+                wall.add( new Wall(wallLevelTexture[Wall.getLevel()], x_parsed * SIZE_TILE, y_parsed_inverse * SIZE_TILE, 10) );
             }
         }
         return false;
@@ -384,15 +498,10 @@ public class PlayState extends State implements InputProcessor {
         int y_parsed_inverse = Gdx.graphics.getHeight() - (int)Math.floor(screenY / SIZE_TILE) * SIZE_TILE;
 
         if(x_parsed >= SIZE_TILE * 2) {
-            if (selectedType.equals("Trap")) {
-                trap[actualTrap].setPosition(x_parsed, y_parsed_inverse);
-            } else if (selectedType.equals("Turret")) {
-                turretBase[actualTurret].setPosition(x_parsed, y_parsed_inverse);
-                turretTower[actualTurret].setPosition(x_parsed, y_parsed_inverse);
-            } else if (selectedType.equals("Wall")) {
-                wall[actualWall].setPosition(x_parsed, y_parsed_inverse);
-            }
+            holoX = x_parsed;
+            holoY = y_parsed_inverse;
         }
+
         return false;
     }
 

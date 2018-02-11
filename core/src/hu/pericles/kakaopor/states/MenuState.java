@@ -79,17 +79,17 @@ public class MenuState extends State implements InputProcessor {
         int WIDTH_HALF = Gdx.graphics.getWidth() / 2;
         int HEIGHT_HALF = Gdx.graphics.getHeight() / 2;
         int WIDTH_HALF_BUTTON = buttonNewGame.getWidth() / 2;
-        int HEIGHT__BUTTON = buttonNewGame.getHeight();
+        int HEIGHT_BUTTON = buttonNewGame.getHeight();
         int y = Gdx.graphics.getHeight() - screenY;
 
         if ( (screenX >= WIDTH_HALF - WIDTH_HALF_BUTTON) && (screenX <= WIDTH_HALF + WIDTH_HALF_BUTTON) ) {
-            if ( (y > HEIGHT_HALF + HEIGHT__BUTTON * 0.5) && (y < HEIGHT_HALF + HEIGHT__BUTTON * 1.5 ) ) {
+            if ( (y > HEIGHT_HALF + HEIGHT_BUTTON * 0.5) && (y < HEIGHT_HALF + HEIGHT_BUTTON * 1.5 ) ) {
                 gameStateManager.set(new PlayState(gameStateManager) );
                 dispose();
-            } else if (y > HEIGHT_HALF - HEIGHT__BUTTON * 0.5) {
+            } else if (y > HEIGHT_HALF - HEIGHT_BUTTON * 0.5) {
                 gameStateManager.set(new PlayState(gameStateManager) );
                 dispose();
-            } else if (y > HEIGHT_HALF - HEIGHT__BUTTON * 1.5) {
+            } else if (y > HEIGHT_HALF - HEIGHT_BUTTON * 1.5) {
                 System.exit(0);
             }
         }
@@ -106,17 +106,17 @@ public class MenuState extends State implements InputProcessor {
         int WIDTH_HALF = Gdx.graphics.getWidth() / 2;
         int HEIGHT_HALF = Gdx.graphics.getHeight() / 2;
         int WIDTH_HALF_BUTTON = buttonNewGame.getWidth() / 2;
-        int HEIGHT__BUTTON = buttonNewGame.getHeight();
+        int HEIGHT_BUTTON = buttonNewGame.getHeight();
         int y = Gdx.graphics.getHeight() - screenY;
 
         if ( (screenX >= WIDTH_HALF - WIDTH_HALF_BUTTON) && (screenX <= WIDTH_HALF + WIDTH_HALF_BUTTON) ) {
-            if ( (y > HEIGHT_HALF + HEIGHT__BUTTON * 0.5) && (y < HEIGHT_HALF + HEIGHT__BUTTON * 1.5 ) ) {
+            if ( (y > HEIGHT_HALF + HEIGHT_BUTTON * 0.5) && (y < HEIGHT_HALF + HEIGHT_BUTTON * 1.5 ) ) {
                 textureRestore();
                 buttonNewGame = new Texture("menu/new_game_hover.png");
-            } else if (y > HEIGHT_HALF - HEIGHT__BUTTON * 0.5) {
+            } else if (y > HEIGHT_HALF - HEIGHT_BUTTON * 0.5) {
                 textureRestore();
                 buttonLoadGame = new Texture("menu/load_game_hover.png");
-            } else if (y > HEIGHT_HALF - HEIGHT__BUTTON * 1.5) {
+            } else if (y > HEIGHT_HALF - HEIGHT_BUTTON * 1.5) {
                 textureRestore();
                 buttonExitGame = new Texture("menu/exit_game_hover.png");
             }
