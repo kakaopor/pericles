@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="app_name">/icles</string>
-    <string name="not_enough_gold" translatable="false">You have not enough gold!</string>
-    <string name="base_destroyed" translatable="false">Your base has been destroyed!</string>
-
-</resources>
